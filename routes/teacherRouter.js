@@ -1,5 +1,5 @@
 import express from 'express';
-import teacherController from '../controllers/teacherController.js';
+import teacherController from '../controllers/TeacherController.js';
 
 const controller = teacherController;
 

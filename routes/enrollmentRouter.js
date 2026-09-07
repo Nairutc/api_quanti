@@ -1,5 +1,5 @@
 import express from 'express';
-import enrollmentController from '../controllers/enrollmentController.js';
+import enrollmentController from '../controllers/EnrollmentController.js';
 
 const controller = enrollmentController;
 

@@ -1,59 +1,129 @@
-import Courses from "../models/Courses.js";
+import Course from '../models/courseModel.js';
+class CourseController {
+    async getAll(req, res) {
+        try {
+            const courses = await Course.find();
 
-const gestor = new Courses();
-
-const getCourses = (req, res) => {
-    const data = gestor.getCourses();
-    res.json( { message: 'success', data: data});
-};
-
-const getCourseById = (req, res) => {
-    const { id } = req.params;
-    const course = gestor.getCourseById(id);
-    if ( !course ){
-        res.status(404).json({ message: 'Not Found', data:{} });
-        return;
-    }
-    res.status(200).json( { message: "success" , data:course} );
-};
-
-const postCourse = (req, res) => {
-    const body = req.body;
-    const { name, description, duration, modality, price } = body;
-
-    if (!name || !description || !duration || !modality || !price) {
-        return res.status(403).send("faltan parámetros");
+            res.json({
+                message: 'Success',
+                data: courses
+            });
+        }
+        catch (err) {
+            res.status(500).json({
+                message: 'Error al obtener cursos'
+            });
+        }
     }
 
-    const id = gestor.addCourse({
-        name,
-        description,
-        duration,
-        modality,
-        price
-    });
+    async getById(req, res) {
+        try {
+            const id = req.params.id;
+            const course = await Course.findById(id);
 
-    res.send(`<h1>Curso registrado correctamente con el id ${id} </h1>`);
-};
+            if (!course) {
+                return res.status(404).json({
+                    message: 'Curso no encontrado'
+                });
+            }
 
-const updateCourse = (req, res) => {
-    const { id } = req.params;
-    const body = req.body;
-
-    gestor.updateCourse(id, body);
-
-    res.status(200).json( { message: "success" , data: {} } );
-};
-
-const deleteCourse = (req, res) => {
-    const { id } = req.params;
-    console.log( {id} );
-    const status = gestor.deleteCourseById(id);
-    if ( status == 'Not Found' ){
-        res.status(404).json({ message: 'Not Found', data:{} });
-        return;
+            res.json({
+                message: 'Success',
+                data: course
+            });
+        }
+        catch (err) {
+            res.status(500).json({
+                message: 'Error al obtener el curso'
+            });
+        }
     }
-    res.status(200).json( { message: "success" , data: {} } );
-};
 
-export { getCourses, getCourseById, postCourse, updateCourse, deleteCourse };
+    async create(req, res) {
+        try {
+            const { name, description, duration, price } = req.body;
+
+            if (!name || !description || !duration || price === undefined ) {
+                return res.status(403).send("faltan parámetros");
+            }
+
+            const course = await Course.create({
+                name,
+                description,
+                duration,
+                price
+            });
+
+            res.json({
+                message: 'Success',
+                data: course
+            });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({
+                message: 'Error al crear el curso'
+            });
+        }
+    }
+
+    async update(req, res) {
+        try {
+            const id = req.params.id;
+
+            const { name, description, duration, modality, price } = req.body;
+
+            if (!name || !description || !duration || !modality || price === undefined) {
+                return res.status(403).send("faltan parámetros");
+            }
+
+            const course = await Course.findByIdAndUpdate(
+                id,
+                { name, description, duration, modality, price },
+                { new: true }
+            );
+
+            if (!course) {
+                return res.status(404).json({
+                    message: 'Curso no encontrado'
+                });
+            }
+
+            res.json({
+                message: 'Success',
+                data: course
+            });
+        }
+        catch (err) {
+            res.status(500).json({
+                message: 'Error al actualizar el curso'
+            });
+        }
+    }
+
+    async delete(req, res) {
+        try {
+            const id = req.params.id;
+
+            const course = await Course.findByIdAndDelete(id);
+
+            if (!course) {
+                return res.status(404).json({
+                    message: 'Curso no encontrado'
+                });
+            }
+
+            res.json({
+                message: 'Success',
+                data: course
+            });
+        }
+        catch (err) {
+            res.status(500).json({
+                message: 'Error al eliminar el curso'
+            });
+        }
+    }
+}
+
+export default new CourseController();

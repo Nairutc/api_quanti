@@ -4,7 +4,7 @@ API REST para gestionar cursos, profesores, inscripciones y usuarios de Academia
 
 ## Datos del proyecto
 
-- Nombre y Apellido: Nairut Contreras | Verónica Gallego
+- Nombre y Apellido:  Verónica Gallego  | Nairut Contreras
 - Materia: Aplicaciones Híbridas
 - Docente: Jonathan Emanuel Cruz
 - Comisión: DWN4AV

@@ -1,18 +1,29 @@
 import Enrollment from '../models/enrollmentsModel.js';
+import Course from '../models/courseModel.js';
 
 class EnrollmentController {
     async getAll(req, res) {
         try {
-            const enrollments = await Enrollment.find();
+            const status = req.query.status;
+
+            const filter = {};
+
+            if (status) {
+                filter.status = status;
+            }
+
+            const enrollments = await Enrollment.find(filter).populate(
+                'course',
+                'name',
+            );
 
             res.json({
                 message: 'Success',
-                data: enrollments
+                data: enrollments,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener inscripciones'
+                message: 'Error al obtener inscripciones',
             });
         }
     }
@@ -21,51 +32,60 @@ class EnrollmentController {
         try {
             const id = req.params.id;
 
-            const enrollment = await Enrollment.findById(id);
+            const enrollment = await Enrollment.findById(id).populate(
+                'course',
+                'name',
+            );
 
             if (!enrollment) {
                 return res.status(404).json({
-                    message: 'Inscripción no encontrada'
+                    message: 'Inscripción no encontrada',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: enrollment
+                data: enrollment,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener la inscripción'
+                message: 'Error al obtener la inscripción',
             });
         }
     }
 
     async create(req, res) {
         try {
-            const { studentName, studentEmail, courseName, status } = req.body;
+            const { studentName, studentEmail, course, status } = req.body;
 
-            if (!studentName || !studentEmail || !courseName) {
+            if (!studentName || !studentEmail || !course) {
                 return res.status(403).send('faltan parámetros');
+            }
+
+            const courseExists = await Course.findById(course);
+
+            if (!courseExists) {
+                return res.status(404).json({
+                    message: 'Curso no encontrado',
+                });
             }
 
             const enrollment = await Enrollment.create({
                 studentName,
                 studentEmail,
-                courseName,
-                status
+                course,
+                status,
             });
 
             res.json({
                 message: 'Success',
-                data: enrollment
+                data: enrollment,
             });
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err);
 
             res.status(500).json({
-                message: 'Error al crear la inscripción'
+                message: 'Error al crear la inscripción',
             });
         }
     }
@@ -74,32 +94,39 @@ class EnrollmentController {
         try {
             const id = req.params.id;
 
-            const { studentName, studentEmail, courseName, status } = req.body;
+            const { studentName, studentEmail, course, status } = req.body;
 
-            if (!studentName || !studentEmail || !courseName || !status) {
+            if (!studentName || !studentEmail || !course || !status) {
                 return res.status(403).send('faltan parámetros');
+            }
+
+            const courseExists = await Course.findById(course);
+
+            if (!courseExists) {
+                return res.status(404).json({
+                    message: 'Curso no encontrado',
+                });
             }
 
             const enrollment = await Enrollment.findByIdAndUpdate(
                 id,
-                { studentName, studentEmail, courseName, status },
-                { new: true, runValidators: true }
+                { studentName, studentEmail, course, status },
+                { new: true, runValidators: true },
             );
 
             if (!enrollment) {
                 return res.status(404).json({
-                    message: 'Inscripción no encontrada'
+                    message: 'Inscripción no encontrada',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: enrollment
+                data: enrollment,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al actualizar la inscripción'
+                message: 'Error al actualizar la inscripción',
             });
         }
     }
@@ -112,18 +139,17 @@ class EnrollmentController {
 
             if (!enrollment) {
                 return res.status(404).json({
-                    message: 'Inscripción no encontrada'
+                    message: 'Inscripción no encontrada',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: enrollment
+                data: enrollment,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al eliminar la inscripción'
+                message: 'Error al eliminar la inscripción',
             });
         }
     }

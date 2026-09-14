@@ -6,6 +6,7 @@ const controller = courseController;
 const router = express.Router();
 
 router.get('/', controller.getAll);
+router.get('/:courseId/enrollments', controller.getEnrollmentsByCourse);
 router.get('/:id', controller.getById);
 router.post('/', controller.create);
 router.put('/:id', controller.update);

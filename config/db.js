@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const connectDB = async () => {
     try {
@@ -6,9 +6,9 @@ const connectDB = async () => {
 
         await mongoose.connect(MONGODB_URI);
 
-        console.log("Conectado a la base de datos");
+        console.log('Conectado a la base de datos');
     } catch (error) {
-        console.error("Error al conectar a la base de datos", error);
+        console.error('Error al conectar a la base de datos', error);
         process.exit(1);
     }
 };

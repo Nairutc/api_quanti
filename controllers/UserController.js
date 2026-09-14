@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import User from '../models/userModel.js';
 
 class UserController {
@@ -7,12 +8,11 @@ class UserController {
 
             res.json({
                 message: 'Success',
-                data: users
+                data: users,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener usuarios'
+                message: 'Error al obtener usuarios',
             });
         }
     }
@@ -25,18 +25,17 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: 'Usuario no encontrado'
+                    message: 'Usuario no encontrado',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: user
+                data: user,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener el usuario'
+                message: 'Error al obtener el usuario',
             });
         }
     }
@@ -49,23 +48,24 @@ class UserController {
                 return res.status(403).send('faltan parámetros');
             }
 
+            const passwordHash = await bcrypt.hash(password, 10);
+
             const user = await User.create({
                 name,
                 email,
-                password,
-                role
+                password: passwordHash,
+                role,
             });
 
             res.json({
                 message: 'Success',
-                data: user
+                data: user,
             });
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err);
 
             res.status(500).json({
-                message: 'Error al crear el usuario'
+                message: 'Error al crear el usuario',
             });
         }
     }
@@ -74,32 +74,33 @@ class UserController {
         try {
             const id = req.params.id;
 
-            const { name, email, password, role } = req.body;
+            const { name, email, password, role, active } = req.body;
 
-            if (!name || !email || !password || !role ) {
+            if (!name || !email || !password || !role) {
                 return res.status(403).send('faltan parámetros');
             }
 
+            const passwordHash = await bcrypt.hash(password, 10);
+
             const user = await User.findByIdAndUpdate(
                 id,
-                { name, email, password, role, active },
-                { new: true, runValidators: true }
+                { name, email, password: passwordHash, role, active },
+                { new: true, runValidators: true },
             );
 
             if (!user) {
                 return res.status(404).json({
-                    message: 'Usuario no encontrado'
+                    message: 'Usuario no encontrado',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: user
+                data: user,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al actualizar el usuario'
+                message: 'Error al actualizar el usuario',
             });
         }
     }
@@ -112,18 +113,17 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: 'Usuario no encontrado'
+                    message: 'Usuario no encontrado',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: user
+                data: user,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al eliminar el usuario'
+                message: 'Error al eliminar el usuario',
             });
         }
     }

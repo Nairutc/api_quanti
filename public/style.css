@@ -26,7 +26,11 @@ body {
 }
 
 header {
-    background: linear-gradient(135deg, var(--morado-oscuro), var(--morado-intenso));
+    background: linear-gradient(
+        135deg,
+        var(--morado-oscuro),
+        var(--morado-intenso)
+    );
     color: var(--blanco);
     text-align: center;
     padding: 52px 20px;

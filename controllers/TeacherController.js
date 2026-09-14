@@ -1,4 +1,5 @@
 import Teacher from '../models/teacherModel.js';
+import Course from '../models/courseModel.js';
 
 class TeacherController {
     async getAll(req, res) {
@@ -7,12 +8,11 @@ class TeacherController {
 
             res.json({
                 message: 'Success',
-                data: teachers
+                data: teachers,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener profesores'
+                message: 'Error al obtener profesores',
             });
         }
     }
@@ -25,18 +25,17 @@ class TeacherController {
 
             if (!teacher) {
                 return res.status(404).json({
-                    message: 'Profesor no encontrado'
+                    message: 'Profesor no encontrado',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: teacher
+                data: teacher,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener el profesor'
+                message: 'Error al obtener el profesor',
             });
         }
     }
@@ -52,19 +51,18 @@ class TeacherController {
             const teacher = await Teacher.create({
                 name,
                 email,
-                specialty
+                specialty,
             });
 
             res.json({
                 message: 'Success',
-                data: teacher
+                data: teacher,
             });
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err);
 
             res.status(500).json({
-                message: 'Error al crear el profesor'
+                message: 'Error al crear el profesor',
             });
         }
     }
@@ -82,23 +80,22 @@ class TeacherController {
             const teacher = await Teacher.findByIdAndUpdate(
                 id,
                 { name, email, specialty },
-                { new: true, runValidators: true }
+                { new: true, runValidators: true },
             );
 
             if (!teacher) {
                 return res.status(404).json({
-                    message: 'Profesor no encontrado'
+                    message: 'Profesor no encontrado',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: teacher
+                data: teacher,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al actualizar el profesor'
+                message: 'Error al actualizar el profesor',
             });
         }
     }
@@ -107,22 +104,30 @@ class TeacherController {
         try {
             const id = req.params.id;
 
+            const courses = await Course.find({ teacher: id });
+
+            if (courses.length > 0) {
+                return res.status(400).json({
+                    message:
+                        'No se puede eliminar el profesor porque tiene cursos asociados',
+                });
+            }
+
             const teacher = await Teacher.findByIdAndDelete(id);
 
             if (!teacher) {
                 return res.status(404).json({
-                    message: 'Profesor no encontrado'
+                    message: 'Profesor no encontrado',
                 });
             }
 
             res.json({
                 message: 'Success',
-                data: teacher
+                data: teacher,
             });
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({
-                message: 'Error al eliminar el profesor'
+                message: 'Error al eliminar el profesor',
             });
         }
     }

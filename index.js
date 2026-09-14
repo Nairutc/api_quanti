@@ -18,7 +18,7 @@ const PORT = process.env.PORT;
 
 app.get('/api/status', (request, response) => {
     response.json({
-        message: 'API Quanti funcionando correctamente'
+        message: 'API Quanti funcionando correctamente',
     });
 });
 

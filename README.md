@@ -11,7 +11,7 @@ API REST para gestionar cursos, profesores, inscripciones y usuarios de Academia
 
 ## Descripción
 
-Este proyecto consiste en una API REST para la administración de una academia. Permite gestionar cursos, profesores, usuarios e inscripciones usando Node.js, Express y MongoDB.
+Este proyecto consiste en una API REST para la administración de una academia. Permite gestionar usuarios, profesores, cursos e inscripciones utilizando Node.js, Express y MongoDB.
 
 ## Tecnologías utilizadas
 
@@ -29,12 +29,26 @@ Este proyecto consiste en una API REST para la administración de una academia. 
 npm install
 ```
 
+## Variables de entorno
+
+El proyecto utiliza variables de entorno para configurar el puerto y la conexión a la base de datos.
+
+El archivo `.env` no se sube al repositorio porque está agregado en `.gitignore`.
+
+Se incluye un archivo `.envExample` como referencia.
+
+## Ejecución
+
+```bash
+npm run dev
+```
+
 ## Endpoints principales
 
 ```txt
 /api/users
-/api/courses
 /api/teachers
+/api/courses
 /api/enrollments
 ```
 
@@ -48,11 +62,22 @@ PUT     /api/users/:id
 DELETE  /api/users/:id
 ```
 
+## Profesores
+
+```txt
+GET     /api/teachers
+GET     /api/teachers/:id
+POST    /api/teachers
+PUT     /api/teachers/:id
+DELETE  /api/teachers/:id
+```
+
 ## Cursos
 
 ```txt
 GET     /api/courses
 GET     /api/courses/:id
+GET     /api/courses/:courseId/enrollments
 POST    /api/courses
 PUT     /api/courses/:id
 DELETE  /api/courses/:id
@@ -64,23 +89,6 @@ DELETE  /api/courses/:id
 GET     /api/courses?name=react
 GET     /api/courses?modality=Virtual
 GET     /api/courses?name=react&modality=Virtual
-```
-
-## Inscripciones de un curso
-
-```txt
-GET     /api/courses/:courseId/enrollments
-GET     /api/courses/:courseId/enrollments?status=pendiente
-```
-
-## Profesores
-
-```txt
-GET     /api/teachers
-GET     /api/teachers/:id
-POST    /api/teachers
-PUT     /api/teachers/:id
-DELETE  /api/teachers/:id
 ```
 
 ## Inscripciones
@@ -99,7 +107,15 @@ DELETE  /api/enrollments/:id
 GET     /api/enrollments?status=pendiente
 GET     /api/enrollments?status=confirmada
 GET     /api/enrollments?status=cancelada
+GET     /api/courses/:courseId/enrollments?status=pendiente
 ```
+
+## Relaciones
+
+- Un curso tiene un profesor asociado.
+- Una inscripción pertenece a un curso.
+- No se puede eliminar un profesor si tiene cursos asociados.
+- No se puede eliminar un curso si tiene inscripciones asociadas.
 
 ## Ejemplo profesor
 
@@ -146,22 +162,10 @@ GET     /api/enrollments?status=cancelada
 }
 ```
 
-## Variables de entorno
-
-El proyecto utiliza variables de entorno para configurar el puerto y la conexión a MongoDB.
-
-El archivo `.env` no se sube al repositorio porque está agregado en `.gitignore`.
-Se incluye un archivo `.env_example` como referencia.
-
-## Relaciones
-
-- Un curso tiene un profesor asociado.
-- Una inscripción pertenece a un curso.
-- No se puede eliminar un profesor si tiene cursos asociados.
-- No se puede eliminar un curso si tiene inscripciones asociadas.
-
 ## Aclaración
 
 Para crear un curso, primero debe existir un profesor.
+
 Para crear una inscripción, primero debe existir un curso.
+
 Las contraseñas de los usuarios se guardan encriptadas con bcrypt.

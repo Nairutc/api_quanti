@@ -1,72 +1,47 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>API Quanti</title>
-        <link rel="stylesheet" href="./style.css" />
-    </head>
-    <body>
-        <header>
-            <h1>Academia Quanti</h1>
-            <p>
-                API REST para gestionar cursos, profesores, inscripciones y
-                usuarios
-            </p>
-        </header>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Quanti</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <header>
+        <img class="logo" src="./logo-quanti.png" alt="Logo Academia Quanti">
 
-        <main>
-            <section>
-                <h2>Endpoints principales</h2>
+        <h1>Academia Quanti</h1>
+        <p>API REST para gestionar cursos, profesores, inscripciones y usuarios</p>
+    </header>
 
-                <ul>
-                    <li><a href="/api/status">Estado de la API</a></li>
-                    <li><a href="/api/users">Usuarios</a></li>
-                    <li><a href="/api/courses">Cursos</a></li>
-                    <li><a href="/api/teachers">Profesores</a></li>
-                    <li><a href="/api/enrollments">Inscripciones</a></li>
-                </ul>
-            </section>
+    <main>
+        <section>
+            <h2>Endpoints principales</h2>
 
-            <section>
-                <h2>Filtros disponibles</h2>
+            <ul>
+                <li><a href="/api/status">Estado de la API</a></li>
+                <li><a href="/api/users">Usuarios</a></li>
+                <li><a href="/api/courses">Cursos</a></li>
+                <li><a href="/api/teachers">Profesores</a></li>
+                <li><a href="/api/enrollments">Inscripciones</a></li>
+            </ul>
+        </section>
 
-                <ul>
-                    <li>
-                        <a href="/api/courses?name=react"
-                            >Buscar cursos por nombre</a
-                        >
-                    </li>
-                    <li>
-                        <a href="/api/courses?modality=Virtual"
-                            >Filtrar cursos por modalidad</a
-                        >
-                    </li>
-                    <li>
-                        <a href="/api/enrollments?status=pendiente"
-                            >Filtrar inscripciones pendientes</a
-                        >
-                    </li>
-                    <li>
-                        <a href="/api/enrollments?status=confirmada"
-                            >Filtrar inscripciones confirmadas</a
-                        >
-                    </li>
-                    <li>
-                        <a href="/api/enrollments?status=cancelada"
-                            >Filtrar inscripciones canceladas</a
-                        >
-                    </li>
-                </ul>
-            </section>
-        </main>
+        <section>
+            <h2>Filtros disponibles</h2>
 
-        <footer>
-            <p>
-                <strong>Nairut Contreras | Verónica Gallego</strong> |
-                Aplicaciones Híbridas | Docente: Jonathan Emanuel Cruz |
-                Comisión: DWN4AV
-            </p>
-        </footer>
-    </body>
+            <ul>
+                <li><a href="/api/courses?name=react">Buscar cursos por nombre</a></li>
+                <li><a href="/api/courses?modality=Virtual">Filtrar cursos por modalidad</a></li>
+                <li><a href="/api/enrollments?status=pendiente">Filtrar inscripciones pendientes</a></li>
+                <li><a href="/api/enrollments?status=confirmada">Filtrar inscripciones confirmadas</a></li>
+                <li><a href="/api/enrollments?status=cancelada">Filtrar inscripciones canceladas</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><strong>Nairut Contreras | Verónica Gallego</strong> | Aplicaciones Híbridas | Docente: Jonathan Emanuel Cruz | Comisión: DWN4AV</p>
+    </footer>
+</body>
 </html>

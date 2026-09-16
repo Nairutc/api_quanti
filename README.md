@@ -96,7 +96,6 @@ GET     /api/courses/:courseId/enrollments?status=pendiente
 - Una inscripción pertenece a un curso.
 - No se puede eliminar un profesor si tiene cursos asociados.
 - No se puede eliminar un curso si tiene inscripciones asociadas.
-   "status": "## Ejemplo usuario
 
 ## Aclaración
 

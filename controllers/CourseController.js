@@ -4,6 +4,7 @@ import Teacher from '../models/teacherModel.js';
 class CourseController {
     async getAll(req, res) {
         try {
+            console.log(req.user);
             const name = req.query.name;
             const modality = req.query.modality;
 

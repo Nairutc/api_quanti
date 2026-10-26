@@ -22,6 +22,8 @@ Este proyecto consiste en una API REST para la administración de una academia. 
 - Dotenv
 - Bcrypt
 - Chalk
+- JSON Web Token
+- Multer
 
 ## Endpoints principales
 
@@ -104,3 +106,29 @@ Para crear un curso, primero debe existir un profesor.
 Para crear una inscripción, primero debe existir un curso.
 
 Las contraseñas de los usuarios se guardan encriptadas con bcrypt.
+
+## Autenticación
+
+
+POST    /api/auth/register
+POST    /api/auth/login
+
+## Permisos
+
+- Los cursos y profesores pueden consultarse públicamente.
+- Solo los administradores pueden crear, actualizar y eliminar cursos y profesores.
+- Solo los administradores pueden administrar usuarios.
+- Los usuarios autenticados pueden crear inscripciones.
+- Solo los administradores pueden consultar, actualizar y eliminar inscripciones.
+
+## Imagen de perfil
+
+
+POST    /api/users/profile-image
+
+
+La ruta requiere autenticación y recibe un archivo mediante `form-data` con el campo:
+
+profileImage
+
+Formatos permitidos: JPEG, PNG y WebP. Tamaño máximo: 2 MB.

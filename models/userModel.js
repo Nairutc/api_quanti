@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
         required: [true, 'La contraseña es obligatoria'],
         minlength: [4, 'La contraseña debe tener al menos 4 caracteres'],
     },
+    profileImage: {
+        type: String,
+        default: null,
+    },
     role: {
         type: String,
         enum: ['admin', 'student', 'teacher'],

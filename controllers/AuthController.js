@@ -93,6 +93,7 @@ class AuthController {
             const payload = {
                 _id: user._id,
                 name: user.name,
+                role: user.role,
             };
 
             const token = jwt.sign(payload, SECRET_KEY, {

@@ -4,7 +4,7 @@ import User from '../models/userModel.js';
 class UserController {
     async getAll(req, res) {
         try {
-            const users = await User.find();
+            const users = await User.find().select('-password');
 
             res.json({
                 message: 'Success',
@@ -21,7 +21,7 @@ class UserController {
         try {
             const id = req.params.id;
 
-            const user = await User.findById(id);
+            const user = await User.findById(id).select('-password');
 
             if (!user) {
                 return res.status(404).json({
@@ -124,6 +124,48 @@ class UserController {
         } catch (err) {
             res.status(500).json({
                 message: 'Error al eliminar el usuario',
+            });
+        }
+    }
+    async uploadProfileImage(req, res) {
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    message: 'No se envió ningún archivo',
+                });
+            }
+
+            const imagePath =
+                `/uploads/profiles/${req.file.filename}`;
+
+            const userId = req.user._id;
+
+            const user = await User.findByIdAndUpdate(
+                userId,
+                {
+                    profileImage: imagePath,
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                },
+            ).select('-password');
+
+            if (!user) {
+                return res.status(404).json({
+                    message: 'Usuario no encontrado',
+                });
+            }
+
+            return res.status(200).json({
+                message: 'Imagen de perfil actualizada',
+                data: user,
+            });
+        } catch (error) {
+            console.error(error);
+
+            return res.status(500).json({
+                message: 'Error al actualizar la imagen de perfil',
             });
         }
     }

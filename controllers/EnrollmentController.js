@@ -12,10 +12,13 @@ class EnrollmentController {
                 filter.status = status;
             }
 
-            const enrollments = await Enrollment.find(filter).populate(
-                'course',
-                'name',
-            );
+            const enrollments = await Enrollment
+                                            .find(filter)
+                                            .sort({ createdAt: -1 })
+                                            .populate(
+                                                'course',
+                                                'name',
+                                            );
 
             res.json({
                 message: 'Success',

@@ -79,6 +79,13 @@ class AuthController {
                 });
             }
 
+            if (!user.active) {
+                return res.status(403).json({
+                    message:
+                        'La cuenta se encuentra inactiva',
+                });
+            }
+
             const isValid = await bcrypt.compare(
                 password,
                 user.password,

@@ -41,69 +41,132 @@ class UserController {
     }
 
     async create(req, res) {
-        try {
-            const { name, email, password, role } = req.body;
+    try {
+        const {
+            name,
+            email,
+            password,
+            role,
+        } = req.body;
 
-            if (!name || !email || !password) {
-                return res.status(403).send('faltan parámetros');
-            }
-
-            const passwordHash = await bcrypt.hash(password, 10);
-
-            const user = await User.create({
-                name,
-                email,
-                password: passwordHash,
-                role,
-            });
-
-            res.json({
-                message: 'Success',
-                data: user,
-            });
-        } catch (err) {
-            console.error(err);
-
-            res.status(500).json({
-                message: 'Error al crear el usuario',
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                message:
+                    'Faltan parámetros obligatorios',
             });
         }
+
+        const normalizedEmail =
+            email.trim().toLowerCase();
+
+        const exists = await User.findOne({
+            email: normalizedEmail,
+        });
+
+        if (exists) {
+            return res.status(409).json({
+                message:
+                    'Ya existe un usuario con ese correo',
+            });
+        }
+
+        const passwordHash =
+            await bcrypt.hash(password, 10);
+
+        const user = await User.create({
+            name: name.trim(),
+            email: normalizedEmail,
+            password: passwordHash,
+            role,
+        });
+
+        return res.status(201).json({
+            message:
+                'Usuario creado correctamente',
+            data: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                active: user.active,
+                profileImage:
+                    user.profileImage,
+                createdAt: user.createdAt,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                'Error al crear el usuario',
+        });
     }
+}
 
     async update(req, res) {
-        try {
-            const id = req.params.id;
+    try {
+        const id = req.params.id;
 
-            const { name, email, password, role, active } = req.body;
+        const {
+            name,
+            email,
+            password,
+            role,
+            active,
+        } = req.body;
 
-            if (!name || !email || !password || !role) {
-                return res.status(403).send('faltan parámetros');
-            }
-
-            const passwordHash = await bcrypt.hash(password, 10);
-
-            const user = await User.findByIdAndUpdate(
-                id,
-                { name, email, password: passwordHash, role, active },
-                { new: true, runValidators: true },
-            );
-
-            if (!user) {
-                return res.status(404).json({
-                    message: 'Usuario no encontrado',
-                });
-            }
-
-            res.json({
-                message: 'Success',
-                data: user,
-            });
-        } catch (err) {
-            res.status(500).json({
-                message: 'Error al actualizar el usuario',
+        if (!name || !email || !role) {
+            return res.status(400).json({
+                message:
+                    'Faltan parámetros obligatorios',
             });
         }
+
+        const data = {
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            role,
+            active,
+        };
+
+        if (password) {
+            data.password = await bcrypt.hash(
+                password,
+                10,
+            );
+        }
+
+        const user =
+            await User.findByIdAndUpdate(
+                id,
+                data,
+                {
+                    new: true,
+                    runValidators: true,
+                },
+            ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                message:
+                    'Usuario no encontrado',
+            });
+        }
+
+        return res.json({
+            message: 'Success',
+            data: user,
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                'Error al actualizar el usuario',
+        });
     }
+}
 
     async delete(req, res) {
         try {

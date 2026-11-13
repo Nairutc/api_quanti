@@ -7,40 +7,18 @@ const controller = enrollmentController;
 const router = express.Router();
 
 // Solamente administradores
-router.get(
-    '/',
-    authMiddleware,
-    roleMiddleware,
-    controller.getAll,
-);
+router.get('/', authMiddleware, roleMiddleware, controller.getAll);
 
-router.get(
-    '/:id',
-    authMiddleware,
-    roleMiddleware,
-    controller.getById,
-);
+router.get('/my', authMiddleware, controller.getMyEnrollments);
+
+router.get('/:id', authMiddleware, roleMiddleware, controller.getById);
 
 // Cualquier usuario autenticado
-router.post(
-    '/',
-    authMiddleware,
-    controller.create,
-);
+router.post('/', authMiddleware, controller.create);
 
 // Solamente administradores
-router.put(
-    '/:id',
-    authMiddleware,
-    roleMiddleware,
-    controller.update,
-);
+router.put('/:id', authMiddleware, roleMiddleware, controller.update);
 
-router.delete(
-    '/:id',
-    authMiddleware,
-    roleMiddleware,
-    controller.delete,
-);
+router.delete('/:id', authMiddleware, roleMiddleware, controller.delete);
 
 export default router;

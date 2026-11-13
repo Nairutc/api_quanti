@@ -1,5 +1,6 @@
 import Enrollment from '../models/enrollmentsModel.js';
 import Course from '../models/courseModel.js';
+import User from '../models/userModel.js';
 
 class EnrollmentController {
     async getAll(req, res) {
@@ -12,13 +13,9 @@ class EnrollmentController {
                 filter.status = status;
             }
 
-            const enrollments = await Enrollment
-                                            .find(filter)
-                                            .sort({ createdAt: -1 })
-                                            .populate(
-                                                'course',
-                                                'name',
-                                            );
+            const enrollments = await Enrollment.find(filter)
+                .sort({ createdAt: -1 })
+                .populate('course', 'name');
 
             res.json({
                 message: 'Success',
@@ -27,6 +24,43 @@ class EnrollmentController {
         } catch (err) {
             res.status(500).json({
                 message: 'Error al obtener inscripciones',
+            });
+        }
+    }
+
+    async getMyEnrollments(req, res) {
+        try {
+            if (req.user.role !== 'student') {
+                return res.status(403).json({
+                    message: 'Esta consulta es solamente para estudiantes',
+                });
+            }
+
+            const student = await User.findById(req.user._id);
+
+            if (!student) {
+                return res.status(404).json({
+                    message: 'Estudiante no encontrado',
+                });
+            }
+
+            const enrollments = await Enrollment.find({
+                studentEmail: student.email,
+            })
+                .sort({
+                    createdAt: -1,
+                })
+                .populate('course', 'name description duration modality price');
+
+            return res.json({
+                message: 'Success',
+                data: enrollments,
+            });
+        } catch (error) {
+            console.error(error);
+
+            return res.status(500).json({
+                message: 'Error al obtener las inscripciones del estudiante',
             });
         }
     }
@@ -61,8 +95,16 @@ class EnrollmentController {
         try {
             const { studentName, studentEmail, course, status } = req.body;
 
-            if (!studentName || !studentEmail || !course) {
-                return res.status(403).send('faltan parámetros');
+            if (!course) {
+                return res.status(400).json({
+                    message: 'Debes seleccionar un curso',
+                });
+            }
+
+            if (req.user.role !== 'admin' && req.user.role !== 'student') {
+                return res.status(403).json({
+                    message: 'No tienes permiso para crear inscripciones',
+                });
             }
 
             const courseExists = await Course.findById(course);
@@ -73,21 +115,57 @@ class EnrollmentController {
                 });
             }
 
-            const enrollment = await Enrollment.create({
+            let enrollmentData = {
                 studentName,
                 studentEmail,
                 course,
                 status,
+            };
+
+            if (req.user.role === 'student') {
+                const student = await User.findById(req.user._id);
+
+                if (!student) {
+                    return res.status(404).json({
+                        message: 'Estudiante no encontrado',
+                    });
+                }
+
+                enrollmentData = {
+                    studentName: student.name,
+                    studentEmail: student.email,
+                    course,
+                    status: 'pendiente',
+                };
+            }
+
+            if (!enrollmentData.studentName || !enrollmentData.studentEmail) {
+                return res.status(400).json({
+                    message: 'Faltan los datos del estudiante',
+                });
+            }
+
+            const existingEnrollment = await Enrollment.findOne({
+                studentEmail: enrollmentData.studentEmail,
+                course,
             });
 
-            res.json({
-                message: 'Success',
+            if (existingEnrollment) {
+                return res.status(409).json({
+                    message: 'El estudiante ya está inscrito en este curso',
+                });
+            }
+
+            const enrollment = await Enrollment.create(enrollmentData);
+
+            return res.status(201).json({
+                message: 'Inscripción registrada correctamente',
                 data: enrollment,
             });
-        } catch (err) {
-            console.error(err);
+        } catch (error) {
+            console.error(error);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: 'Error al crear la inscripción',
             });
         }

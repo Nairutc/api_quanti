@@ -45,7 +45,9 @@ class TeacherController {
             const { name, email, specialty } = req.body;
 
             if (!name || !email || !specialty) {
-                return res.status(403).send('faltan parámetros');
+                return res.status(400).json({
+                    message: 'Faltan parámetros',
+                });
             }
 
             const teacher = await Teacher.create({
@@ -74,7 +76,9 @@ class TeacherController {
             const { name, email, specialty } = req.body;
 
             if (!name || !email || !specialty) {
-                return res.status(403).send('faltan parámetros');
+                return res.status(400).json({
+                    message: 'Faltan parámetros',
+                });
             }
 
             const teacher = await Teacher.findByIdAndUpdate(

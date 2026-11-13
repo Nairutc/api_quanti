@@ -101,7 +101,9 @@ class CourseController {
                 price === undefined ||
                 !teacher
             ) {
-                return res.status(403).send('faltan parámetros');
+                return res.status(400).json({
+                    message: 'Faltan parámetros',
+                });
             }
 
             const teacherExists = await Teacher.findById(teacher);
@@ -148,7 +150,9 @@ class CourseController {
                 price === undefined ||
                 !teacher
             ) {
-                return res.status(403).send('faltan parámetros');
+                return res.status(400).json({
+                    message: 'Faltan parámetros',
+                });
             }
 
             const teacherExists = await Teacher.findById(teacher);

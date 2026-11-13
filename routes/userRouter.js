@@ -24,6 +24,18 @@ router.get(
 );
 
 router.get(
+    '/profile',
+    authMiddleware,
+    controller.getProfile,
+);
+
+router.put(
+    '/profile',
+    authMiddleware,
+    controller.updateProfile,
+);
+
+router.get(
     '/:id',
     authMiddleware,
     roleMiddleware,

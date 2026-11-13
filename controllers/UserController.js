@@ -190,6 +190,138 @@ class UserController {
             });
         }
     }
+
+    async getProfile(req, res) {
+    try {
+        const userId = req.user._id;
+
+        const user = await User.findById(
+            userId,
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'Usuario no encontrado',
+            });
+        }
+
+        return res.json({
+            message: 'Success',
+            data: user,
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                'Error al obtener el perfil',
+        });
+    }
+}
+
+async updateProfile(req, res) {
+    try {
+        const userId = req.user._id;
+
+        const {
+            name,
+            email,
+            password,
+        } = req.body;
+
+        if (
+            !name ||
+            name.trim().length < 3
+        ) {
+            return res.status(400).json({
+                message:
+                    'El nombre debe tener al menos 3 caracteres',
+            });
+        }
+
+        if (
+            !email ||
+            !email.includes('@')
+        ) {
+            return res.status(400).json({
+                message:
+                    'El correo electrónico no es válido',
+            });
+        }
+
+        if (
+            password &&
+            password.length < 4
+        ) {
+            return res.status(400).json({
+                message:
+                    'La contraseña debe tener al menos 4 caracteres',
+            });
+        }
+
+        const normalizedEmail =
+            email.trim().toLowerCase();
+
+        const emailExists =
+            await User.findOne({
+                email: normalizedEmail,
+                _id: {
+                    $ne: userId,
+                },
+            });
+
+        if (emailExists) {
+            return res.status(409).json({
+                message:
+                    'Ya existe otro usuario con ese correo',
+            });
+        }
+
+        const data = {
+            name: name.trim(),
+            email: normalizedEmail,
+        };
+
+        if (password) {
+            data.password =
+                await bcrypt.hash(
+                    password,
+                    10,
+                );
+        }
+
+        const user =
+            await User.findByIdAndUpdate(
+                userId,
+                data,
+                {
+                    new: true,
+                    runValidators: true,
+                },
+            ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                message:
+                    'Usuario no encontrado',
+            });
+        }
+
+        return res.json({
+            message:
+                'Perfil actualizado correctamente',
+            data: user,
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                'Error al actualizar el perfil',
+        });
+    }
+}
+
     async uploadProfileImage(req, res) {
         try {
             if (!req.file) {

@@ -1,10 +1,10 @@
-import Teacher from '../models/teacherModel.js';
-import Course from '../models/courseModel.js';
+import teacherService from '../services/TeacherService.js';
 
 class TeacherController {
     async getAll(req, res) {
         try {
-            const teachers = await Teacher.find();
+            const teachers =
+                await teacherService.getAll();
 
             res.json({
                 message: 'Success',
@@ -12,7 +12,8 @@ class TeacherController {
             });
         } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener profesores',
+                message:
+                    'Error al obtener profesores',
             });
         }
     }
@@ -21,11 +22,13 @@ class TeacherController {
         try {
             const id = req.params.id;
 
-            const teacher = await Teacher.findById(id);
+            const teacher =
+                await teacherService.getById(id);
 
             if (!teacher) {
                 return res.status(404).json({
-                    message: 'Profesor no encontrado',
+                    message:
+                        'Profesor no encontrado',
                 });
             }
 
@@ -35,14 +38,19 @@ class TeacherController {
             });
         } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener el profesor',
+                message:
+                    'Error al obtener el profesor',
             });
         }
     }
 
     async create(req, res) {
         try {
-            const { name, email, specialty } = req.body;
+            const {
+                name,
+                email,
+                specialty,
+            } = req.body;
 
             if (!name || !email || !specialty) {
                 return res.status(400).json({
@@ -50,13 +58,23 @@ class TeacherController {
                 });
             }
 
-            const teacher = await Teacher.create({
-                name,
-                email,
-                specialty,
-            });
+            const normalizedEmail =
+                email.trim().toLowerCase();
 
-            res.json({
+            const user =
+                await teacherService.getUserByEmail(
+                    normalizedEmail,
+                );
+
+            const teacher =
+                await teacherService.create({
+                    user: user ? user._id : null,
+                    name,
+                    email: normalizedEmail,
+                    specialty,
+                });
+
+            res.status(201).json({
                 message: 'Success',
                 data: teacher,
             });
@@ -64,7 +82,8 @@ class TeacherController {
             console.error(err);
 
             res.status(500).json({
-                message: 'Error al crear el profesor',
+                message:
+                    'Error al crear el profesor',
             });
         }
     }
@@ -73,7 +92,11 @@ class TeacherController {
         try {
             const id = req.params.id;
 
-            const { name, email, specialty } = req.body;
+            const {
+                name,
+                email,
+                specialty,
+            } = req.body;
 
             if (!name || !email || !specialty) {
                 return res.status(400).json({
@@ -81,15 +104,26 @@ class TeacherController {
                 });
             }
 
-            const teacher = await Teacher.findByIdAndUpdate(
-                id,
-                { name, email, specialty },
-                { new: true, runValidators: true },
-            );
+            const normalizedEmail =
+                email.trim().toLowerCase();
+
+            const user =
+                await teacherService.getUserByEmail(
+                    normalizedEmail,
+                );
+
+            const teacher =
+                await teacherService.update(id, {
+                    user: user ? user._id : null,
+                    name,
+                    email: normalizedEmail,
+                    specialty,
+                });
 
             if (!teacher) {
                 return res.status(404).json({
-                    message: 'Profesor no encontrado',
+                    message:
+                        'Profesor no encontrado',
                 });
             }
 
@@ -99,7 +133,72 @@ class TeacherController {
             });
         } catch (err) {
             res.status(500).json({
-                message: 'Error al actualizar el profesor',
+                message:
+                    'Error al actualizar el profesor',
+            });
+        }
+    }
+
+    async getMyCourses(req, res) {
+        try {
+            if (req.user.role !== 'teacher') {
+                return res.status(403).json({
+                    message:
+                        'Acceso exclusivo para profesores',
+                });
+            }
+
+            let teacher =
+                await teacherService.getByUserId(
+                    req.user._id,
+                );
+
+            if (!teacher) {
+                const user =
+                    await teacherService.getUserById(
+                        req.user._id,
+                    );
+
+                if (!user) {
+                    return res.status(404).json({
+                        message:
+                            'Usuario no encontrado',
+                    });
+                }
+
+                teacher =
+                    await teacherService.getByEmail(
+                        user.email,
+                    );
+
+                if (!teacher) {
+                    return res.status(404).json({
+                        message:
+                            'No existe una ficha de profesor asociada a esta cuenta',
+                    });
+                }
+
+                await teacherService.linkUser(
+                    teacher,
+                    user._id,
+                );
+            }
+
+            const courses =
+                await teacherService.getCourses(
+                    teacher._id,
+                );
+
+            return res.json({
+                message: 'Success',
+                data: courses,
+            });
+        } catch (err) {
+            console.error(err);
+
+            return res.status(500).json({
+                message:
+                    'Error al obtener los cursos del profesor',
             });
         }
     }
@@ -108,7 +207,10 @@ class TeacherController {
         try {
             const id = req.params.id;
 
-            const courses = await Course.find({ teacher: id });
+            const courses =
+                await teacherService.getAssignedCourses(
+                    id,
+                );
 
             if (courses.length > 0) {
                 return res.status(400).json({
@@ -117,11 +219,13 @@ class TeacherController {
                 });
             }
 
-            const teacher = await Teacher.findByIdAndDelete(id);
+            const teacher =
+                await teacherService.delete(id);
 
             if (!teacher) {
                 return res.status(404).json({
-                    message: 'Profesor no encontrado',
+                    message:
+                        'Profesor no encontrado',
                 });
             }
 
@@ -131,7 +235,8 @@ class TeacherController {
             });
         } catch (err) {
             res.status(500).json({
-                message: 'Error al eliminar el profesor',
+                message:
+                    'Error al eliminar el profesor',
             });
         }
     }

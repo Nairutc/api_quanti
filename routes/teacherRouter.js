@@ -8,6 +8,14 @@ const router = express.Router();
 
 // Rutas públicas
 router.get('/', controller.getAll);
+
+// Ruta del profesor autenticado
+router.get(
+    '/my/courses',
+    authMiddleware,
+    controller.getMyCourses,
+);
+
 router.get('/:id', controller.getById);
 
 // Rutas exclusivas para administradores

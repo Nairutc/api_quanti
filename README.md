@@ -112,6 +112,7 @@ La página principal de la API puede visitarse desde esa dirección.
 ```text
 config/          Conexión con MongoDB
 controllers/     Lógica de las solicitudes
+services/        Lógica de negocio y acceso a los modelos
 middlewares/     Autenticación, roles y carga de imágenes
 models/          Esquemas de Mongoose
 public/          Página informativa de la API
@@ -193,6 +194,7 @@ DELETE  /api/teachers/:id
 GET     /api/courses
 GET     /api/courses/:id
 GET     /api/courses/:courseId/enrollments
+GET     /api/teachers/my/coursess
 POST    /api/courses
 PUT     /api/courses/:id
 DELETE  /api/courses/:id
@@ -223,6 +225,7 @@ GET /api/courses?name=react&modality=Virtual
 ```http
 GET     /api/enrollments
 GET     /api/enrollments/:id
+GET     /api/enrollments/my
 POST    /api/enrollments
 PUT     /api/enrollments/:id
 DELETE  /api/enrollments/:id

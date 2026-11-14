@@ -1,28 +1,29 @@
-import Course from '../models/courseModel.js';
-import Enrollment from '../models/enrollmentsModel.js';
-import Teacher from '../models/teacherModel.js';
+import courseService from '../services/CourseService.js';
+
 class CourseController {
     async getAll(req, res) {
         try {
-            console.log(req.user);
             const name = req.query.name;
             const modality = req.query.modality;
 
             const filter = {};
 
             if (name) {
-                //use $regex y $options: 'i' para hacer la búsqueda insensible a mayúsculas y minúsculas y buscar coincidencias.
-                filter.name = { $regex: name, $options: 'i' };
+                filter.name = {
+                    $regex: name,
+                    $options: 'i',
+                };
             }
 
             if (modality) {
-                filter.modality = { $regex: modality, $options: 'i' };
+                filter.modality = {
+                    $regex: modality,
+                    $options: 'i',
+                };
             }
 
-            const courses = await Course.find(filter).populate(
-                'teacher',
-                'name specialty',
-            );
+            const courses =
+                await courseService.getAll(filter);
 
             res.json({
                 message: 'Success',
@@ -38,19 +39,20 @@ class CourseController {
     async getEnrollmentsByCourse(req, res) {
         try {
             const courseId = req.params.courseId;
-            const query = req.query.status;
+            const status = req.query.status;
 
-            console.log({ query });
+            const filter = {
+                course: courseId,
+            };
 
-            const filter = { course: courseId };
-
-            if (query) {
-                filter.status = query;
+            if (status) {
+                filter.status = status;
             }
 
-            const enrollments = await Enrollment.find(filter)
-                .sort({ createdAt: 1 })
-                .populate('course');
+            const enrollments =
+                await courseService.getEnrollmentsByCourse(
+                    filter,
+                );
 
             res.json({
                 message: 'Success',
@@ -58,7 +60,8 @@ class CourseController {
             });
         } catch (err) {
             res.status(500).json({
-                message: 'Error al obtener las inscripciones del curso',
+                message:
+                    'Error al obtener las inscripciones del curso',
             });
         }
     }
@@ -66,10 +69,9 @@ class CourseController {
     async getById(req, res) {
         try {
             const id = req.params.id;
-            const course = await Course.findById(id).populate(
-                'teacher',
-                'name specialty',
-            );
+
+            const course =
+                await courseService.getById(id);
 
             if (!course) {
                 return res.status(404).json({
@@ -90,8 +92,14 @@ class CourseController {
 
     async create(req, res) {
         try {
-            const { name, description, duration, modality, price, teacher } =
-                req.body;
+            const {
+                name,
+                description,
+                duration,
+                modality,
+                price,
+                teacher,
+            } = req.body;
 
             if (
                 !name ||
@@ -106,7 +114,10 @@ class CourseController {
                 });
             }
 
-            const teacherExists = await Teacher.findById(teacher);
+            const teacherExists =
+                await courseService.getTeacherById(
+                    teacher,
+                );
 
             if (!teacherExists) {
                 return res.status(404).json({
@@ -114,21 +125,23 @@ class CourseController {
                 });
             }
 
-            const course = await Course.create({
-                name,
-                description,
-                duration,
-                modality,
-                price,
-                teacher,
-            });
+            const course =
+                await courseService.create({
+                    name,
+                    description,
+                    duration,
+                    modality,
+                    price,
+                    teacher,
+                });
 
-            res.json({
+            res.status(201).json({
                 message: 'Success',
                 data: course,
             });
         } catch (err) {
             console.error(err);
+
             res.status(500).json({
                 message: 'Error al crear el curso',
             });
@@ -139,8 +152,14 @@ class CourseController {
         try {
             const id = req.params.id;
 
-            const { name, description, duration, modality, price, teacher } =
-                req.body;
+            const {
+                name,
+                description,
+                duration,
+                modality,
+                price,
+                teacher,
+            } = req.body;
 
             if (
                 !name ||
@@ -155,7 +174,10 @@ class CourseController {
                 });
             }
 
-            const teacherExists = await Teacher.findById(teacher);
+            const teacherExists =
+                await courseService.getTeacherById(
+                    teacher,
+                );
 
             if (!teacherExists) {
                 return res.status(404).json({
@@ -163,11 +185,15 @@ class CourseController {
                 });
             }
 
-            const course = await Course.findByIdAndUpdate(
-                id,
-                { name, description, duration, modality, price, teacher },
-                { new: true, runValidators: true },
-            );
+            const course =
+                await courseService.update(id, {
+                    name,
+                    description,
+                    duration,
+                    modality,
+                    price,
+                    teacher,
+                });
 
             if (!course) {
                 return res.status(404).json({
@@ -181,7 +207,8 @@ class CourseController {
             });
         } catch (err) {
             res.status(500).json({
-                message: 'Error al actualizar el curso',
+                message:
+                    'Error al actualizar el curso',
             });
         }
     }
@@ -190,7 +217,10 @@ class CourseController {
         try {
             const id = req.params.id;
 
-            const enrollments = await Enrollment.find({ course: id });
+            const enrollments =
+                await courseService.getCourseEnrollments(
+                    id,
+                );
 
             if (enrollments.length > 0) {
                 return res.status(400).json({
@@ -199,7 +229,8 @@ class CourseController {
                 });
             }
 
-            const course = await Course.findByIdAndDelete(id);
+            const course =
+                await courseService.delete(id);
 
             if (!course) {
                 return res.status(404).json({

@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const teacherSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null,
+    },
     name: {
         type: String,
         required: [true, 'El nombre del profesor es obligatorio'],
@@ -19,6 +24,10 @@ const teacherSchema = new mongoose.Schema({
         type: String,
         required: [true, 'La especialidad es obligatoria'],
         trim: true,
+    },
+    active: {
+        type: Boolean,
+        default: true,
     },
     createdAt: {
         type: Date,

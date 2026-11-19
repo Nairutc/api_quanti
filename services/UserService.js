@@ -1,3 +1,4 @@
+import Enrollment from '../models/enrollmentsModel.js';
 import Teacher from '../models/teacherModel.js';
 import User from '../models/userModel.js';
 
@@ -43,6 +44,12 @@ class UserService {
                 runValidators: true,
             },
         ).select('-password');
+    }
+
+    async hasEnrollments(userId) {
+        return Enrollment.exists({
+            student: userId,
+        });
     }
 
     async delete(id) {

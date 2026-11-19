@@ -48,8 +48,8 @@ class EnrollmentController {
             }
 
             const enrollments =
-                await enrollmentService.getByStudentEmail(
-                    student.email,
+                await enrollmentService.getByStudentId(
+                    student._id,
                 );
 
             return res.json({
@@ -95,8 +95,7 @@ class EnrollmentController {
     async create(req, res) {
         try {
             const {
-                studentName,
-                studentEmail,
+                student,
                 course,
                 status,
             } = req.body;
@@ -130,47 +129,45 @@ class EnrollmentController {
                 });
             }
 
-            let enrollmentData = {
-                studentName,
-                studentEmail,
-                course,
-                status,
-            };
+            let studentId = student;
 
             if (req.user.role === 'student') {
-                const student =
-                    await enrollmentService.getStudentById(
-                        req.user._id,
-                    );
-
-                if (!student) {
-                    return res.status(404).json({
-                        message:
-                            'Estudiante no encontrado',
-                    });
-                }
-
-                enrollmentData = {
-                    studentName: student.name,
-                    studentEmail: student.email,
-                    course,
-                    status: 'pendiente',
-                };
+                studentId = req.user._id;
             }
 
-            if (
-                !enrollmentData.studentName ||
-                !enrollmentData.studentEmail
-            ) {
+            if (!studentId) {
                 return res.status(400).json({
                     message:
-                        'Faltan los datos del estudiante',
+                        'Debes seleccionar un estudiante',
                 });
             }
 
+            const studentAccount =
+                await enrollmentService.getStudentById(
+                    studentId,
+                );
+
+            if (!studentAccount) {
+                return res.status(404).json({
+                    message:
+                        'Estudiante no encontrado o inactivo',
+                });
+            }
+
+            const enrollmentData = {
+                student: studentAccount._id,
+                studentName: studentAccount.name,
+                studentEmail: studentAccount.email,
+                course,
+                status:
+                    req.user.role === 'student'
+                        ? 'pendiente'
+                        : status || 'pendiente',
+            };
+
             const existingEnrollment =
                 await enrollmentService.findExisting(
-                    enrollmentData.studentEmail,
+                    studentAccount._id,
                     course,
                 );
 
@@ -206,15 +203,13 @@ class EnrollmentController {
             const id = req.params.id;
 
             const {
-                studentName,
-                studentEmail,
+                student,
                 course,
                 status,
             } = req.body;
 
             if (
-                !studentName ||
-                !studentEmail ||
+                !student ||
                 !course ||
                 !status
             ) {
@@ -235,10 +230,37 @@ class EnrollmentController {
                 });
             }
 
+            const studentAccount =
+                await enrollmentService.getStudentById(
+                    student,
+                );
+
+            if (!studentAccount) {
+                return res.status(404).json({
+                    message:
+                        'Estudiante no encontrado o inactivo',
+                });
+            }
+
+            const existingEnrollment =
+                await enrollmentService.findExisting(
+                    studentAccount._id,
+                    course,
+                    id,
+                );
+
+            if (existingEnrollment) {
+                return res.status(409).json({
+                    message:
+                        'El estudiante ya está inscrito en este curso',
+                });
+            }
+
             const enrollment =
                 await enrollmentService.update(id, {
-                    studentName,
-                    studentEmail,
+                    student: studentAccount._id,
+                    studentName: studentAccount.name,
+                    studentEmail: studentAccount.email,
                     course,
                     status,
                 });

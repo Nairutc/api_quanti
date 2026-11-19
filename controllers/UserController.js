@@ -200,6 +200,16 @@ class UserController {
         try {
             const id = req.params.id;
 
+            const hasEnrollments =
+                await userService.hasEnrollments(id);
+
+            if (hasEnrollments) {
+                return res.status(409).json({
+                    message:
+                        'No puedes eliminar un usuario que tiene inscripciones registradas',
+                });
+            }
+
             const user =
                 await userService.delete(id);
 

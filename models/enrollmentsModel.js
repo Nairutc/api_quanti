@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const enrollmentSchema = new mongoose.Schema({
+    student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'El estudiante es obligatorio'],
+    },
     studentName: {
         type: String,
         required: [true, 'El nombre del estudiante es obligatorio'],

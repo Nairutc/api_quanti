@@ -8,20 +8,26 @@ class EnrollmentService {
             .sort({
                 createdAt: -1,
             })
+            .populate('student', 'name email')
             .populate('course', 'name');
     }
 
     async getStudentById(id) {
-        return User.findById(id);
+        return User.findOne({
+            _id: id,
+            role: 'student',
+            active: true,
+        });
     }
 
-    async getByStudentEmail(email) {
+    async getByStudentId(studentId) {
         return Enrollment.find({
-            studentEmail: email,
+            student: studentId,
         })
             .sort({
                 createdAt: -1,
             })
+            .populate('student', 'name email')
             .populate(
                 'course',
                 'name description duration modality price',
@@ -29,10 +35,9 @@ class EnrollmentService {
     }
 
     async getById(id) {
-        return Enrollment.findById(id).populate(
-            'course',
-            'name',
-        );
+        return Enrollment.findById(id)
+            .populate('student', 'name email')
+            .populate('course', 'name');
     }
 
     async getCourseById(id) {
@@ -40,30 +45,67 @@ class EnrollmentService {
     }
 
     async findExisting(
-        studentEmail,
+        studentId,
         courseId,
+        enrollmentId = null,
     ) {
-        return Enrollment.findOne({
-            studentEmail,
+        const filter = {
+            student: studentId,
             course: courseId,
-        });
+        };
+
+        if (enrollmentId) {
+            filter._id = {
+                $ne: enrollmentId,
+            };
+        }
+
+        return Enrollment.findOne(filter);
     }
 
     async create(enrollmentData) {
-        return Enrollment.create(
+        const enrollment =
+            await Enrollment.create(
             enrollmentData,
         );
+
+        return enrollment.populate([
+            {
+                path: 'student',
+                select: 'name email',
+            },
+            {
+                path: 'course',
+                select: 'name',
+            },
+        ]);
     }
 
     async update(id, enrollmentData) {
-        return Enrollment.findByIdAndUpdate(
-            id,
-            enrollmentData,
+        const enrollment =
+            await Enrollment.findByIdAndUpdate(
+                id,
+                enrollmentData,
+                {
+                    new: true,
+                    runValidators: true,
+                },
+            );
+
+        if (!enrollment) {
+            return null;
+        }
+
+        return enrollment.populate([
             {
-                new: true,
-                runValidators: true,
+                path: 'student',
+                select: 'name email',
             },
-        );
+            {
+                path: 'course',
+                select: 'name',
+            },
+        ]);
     }
 
     async delete(id) {
